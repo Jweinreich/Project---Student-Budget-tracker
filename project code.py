@@ -84,7 +84,6 @@ def setup_categories(data):
         if c:
 # Fixed the box-shifting bug by forcing a character limit on category names
             clean_name = c[:9]
-# Changed this to 53 so we don't get 'index out of range' errors when hitting week 52
             cats.append({"name": clean_name, "weeks": [0]*53})
     data["categories"] = cats
 
@@ -132,14 +131,12 @@ def check_overspending(data):
     total = sum(cat["weeks"][w] for cat in data["categories"])
     weekly_income = convert_weekly_income(data)
     remaining = weekly_income - total
-    
-    current_savings = calculate_all_savings(data)
+    data["savings"] += remaining
 
-    print(f"\n--- Week {w} Summary ---")
-    print(f"Total spent this week: {total:.2f}")
-    print(f"Weekly income: {weekly_income:.2f}")
-    print(f"Remaining this week: {remaining:.2f}")
-    print(f"Total Portfolio Savings: {current_savings:.2f}")
+    print(f"\nTotal spent: {total}")
+    print(f"Weekly income: {weekly_income}")
+    print(f"Remaining: {remaining}")
+    print(f"Savings: {data['savings']}")
 
     if remaining > 0 and remaining >= weekly_income * 0.30:
         print(f"** Tip: You should consider investing {remaining/2:.2f}. **")
@@ -176,11 +173,12 @@ def monthly_report(data):
     monthly_income = weekly_income * 4.33
     monthly_exp = avg_weekly_exp * 4.33
 
-    print("\n=== Monthly Report (Projected) ===")
-    print(f"Weekly Avg Expenses: {avg_weekly_exp:.2f}")
-    print(f"Est. Monthly Income:   {monthly_income:.2f}")
-    print(f"Est. Monthly Expenses: {monthly_exp:.2f}")
-    print(f"Est. Monthly Balance:  {monthly_income - monthly_exp:.2f}")
+    print("\n=== Monthly Report ===")
+    print(f"Weekly income: {weekly_income}")
+    print(f"Weekly avg expenses: {avg_weekly_exp}")
+    print(f"Monthly income: {monthly_income}")
+    print(f"Monthly expenses: {monthly_exp}")
+    print(f"Monthly balance: {monthly_income - monthly_exp}")
 
 def main():
     data = login()
@@ -228,7 +226,6 @@ def main():
             print("Budget closed. See you later.")
             break
         else:
-# Fixed the 'random input' bug—it now ignores junk and asks you to try again
             print("!!! Invalid input. Please use E, I, N, P, S, or X. !!!")
 
 if __name__ == "__main__":
